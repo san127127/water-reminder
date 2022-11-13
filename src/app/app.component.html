@@ -1,0 +1,32 @@
+<div class="root">
+    <div>
+        <img class="raingdrop" src="assets/raindrop.png" />
+    </div>
+    <div *ngIf="hasNotificationPermission(); else elseBlock">
+        <div [ngSwitch]="state$ | async">
+            <div *ngSwitchCase="'Stopped'">
+                <p>
+                    Remind me to drink water every <input type="number" [(ngModel)]="reminderFrequencyInMinutes" /> minutes
+                </p>
+                <button (click)="start()">Start</button>
+            </div>
+            <div *ngSwitchCase="'Started'">
+                <p>
+                    Started remaining {{ startedCountdown$ | async }}
+                </p>
+                <button (click)="drink()">I just drunk some water</button>
+                <br>
+                <button (click)="stop()">Stop</button>
+            </div>
+            <div *ngSwitchCase="'StartedOvertime'">
+                <p>Overtime!! Next reminder after {{ overtimeCountdown$ | async }} seconds</p>
+                <button (click)="drink()">I just drunk some water</button>
+                <br>
+                <button (click)="stop()">Stop</button>
+            </div>
+        </div>
+    </div>
+    <ng-template #elseBlock>
+        <button (click)="requestNotificationPermission()">Please grant notification permission</button>
+    </ng-template>
+</div>

@@ -1,32 +1,76 @@
-import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { Component, Pipe, PipeTransform } from '@angular/core';
+import { BehaviorSubject, buffer, bufferCount, filter, interval, map, Observable, of, Subscription, switchMap, takeUntil, takeWhile, timeInterval, timer } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { ThisReceiver } from '@angular/compiler';
+
+type State = 'Stopped' | 'Started' | 'StartedOvertime';
 
 @Component({
   selector: 'app-root',
-  template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center" class="content">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <span style="display: block">{{ title }} app is running!</span>
-      <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-    </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
-    
-  `,
-  styles: []
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
+  imports: [CommonModule, FormsModule],
+  standalone: true,
 })
 export class AppComponent {
-  title = 'water-reminder';
+  reminderFrequencyInMinutes = 60;
+  state$ = new BehaviorSubject<State>('Stopped');
+  startedCountdown$: Observable<number> = this.state$
+    .pipe(
+      filter(x => x === 'Started'),
+      switchMap(() => timer(0, 1000).pipe(
+        map(x => this.reminderFrequencyInMinutes * 60 - x),
+        takeWhile(x => x >= 0),
+        takeUntil(this.state$.pipe(filter(x => x !== 'Started')))
+      ))
+    );
+  overtimeCountdown$ = this.state$.pipe(
+    filter(x => x === 'StartedOvertime'),
+    switchMap(() => timer(0, 1000).pipe(
+      map(x => 59 - (x % 60)),
+      takeUntil(this.state$.pipe(filter(x => x !== 'StartedOvertime')))
+    ))
+  )
+  constructor() {
+    this.startedCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
+      this.sendNotification('Time to drink some water');
+      this.state$.next('StartedOvertime');
+    })
+
+    this.overtimeCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
+      this.sendNotification('Time to drink some water');
+    });
+  }
+
+  hasNotificationPermission(): boolean {
+    return window.Notification.permission === 'granted';
+  }
+
+  start() {
+    this.state$.next('Started');
+  }
+
+  stop() {
+    this.state$.next('Stopped');
+  }
+
+  drink() {
+    this.state$.next('Started');
+  }
+
+  async requestNotificationPermission() {
+    const permission = await window.Notification.requestPermission();
+    if(permission === 'granted') {
+      this.sendNotification('We are good to go~');
+    }
+  }
+
+  async sendNotification(msg: string) {
+    if(window.Notification.permission === 'granted') {
+      new Notification("Water reminder", {
+        body: msg
+      });
+    }
+  }
 }
