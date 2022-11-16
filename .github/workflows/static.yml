@@ -40,6 +40,13 @@ jobs:
         run: |
           pnpm install
           npx ng build --base-href ""
+
+          # "sed -i" doesn't work exactly the same on linux and mac
+          # Workaround by create a new file and overwrite the original index.html
+          indexPath="./dist/water-reminder/index.html"
+          tempPath="./dist/water-reminder/tmp-index.html"
+          sed "s/%SHA%/"$GITHUB_SHA"/g" $indexPath > $tempPath
+          mv -f $tempPath $indexPath
       - name: Setup Pages
         uses: actions/configure-pages@v2
       - name: Upload artifact
