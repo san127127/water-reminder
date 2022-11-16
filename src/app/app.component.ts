@@ -5,6 +5,10 @@ import { CommonModule } from '@angular/common';
 import { ThisReceiver } from '@angular/compiler';
 
 type State = 'Stopped' | 'Started' | 'StartedOvertime';
+interface History {
+  event: 'Start' | 'Drink' | 'Stop';
+  time: Date;
+}
 
 @Component({
   selector: 'app-root',
@@ -39,6 +43,9 @@ export class AppComponent {
       takeUntil(this.state$.pipe(filter(x => x !== 'StartedOvertime')))
     ))
   )
+
+  histories: History[] = []
+
   constructor() {
     this.startedCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
       this.sendNotification('Time to drink some water');
@@ -55,14 +62,26 @@ export class AppComponent {
   }
 
   start() {
+    this.histories.push({
+      event: 'Start',
+      time: new Date(),
+    });
     this.state$.next('Started');
   }
 
   stop() {
+    this.histories.push({
+      event: 'Stop',
+      time: new Date(),
+    });
     this.state$.next('Stopped');
   }
 
   drink() {
+    this.histories.push({
+      event: 'Drink',
+      time: new Date(),
+    });
     this.state$.next('Started');
   }
 

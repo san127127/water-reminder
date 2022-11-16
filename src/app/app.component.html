@@ -25,6 +25,18 @@
                 <button (click)="stop()">Stop</button>
             </div>
         </div>
+        <div class="historiesContainer">
+            <ul>
+                <li *ngFor="let h of histories;">
+                    {{ h.time | date:'shortTime' }} -
+                    <ng-container [ngSwitch]="h.event">
+                        <span *ngSwitchCase="'Start'">Started</span>
+                        <span *ngSwitchCase="'Drink'">You drunk some water</span>
+                        <span *ngSwitchCase="'Stop'">Stopped</span>
+                    </ng-container >
+                </li>
+            </ul>
+        </div>
     </div>
     <ng-template #elseBlock>
         <button (click)="requestNotificationPermission()">Please grant notification permission</button>
