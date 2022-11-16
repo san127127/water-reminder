@@ -12,7 +12,7 @@
             </div>
             <div *ngSwitchCase="'Started'">
                 <p>
-                    Started remaining {{ startedCountdown$ | async }}
+                    Next reminder after {{ startedCountdownFormatted$ | async }}
                 </p>
                 <button (click)="drink()">I just drunk some water</button>
                 <br>

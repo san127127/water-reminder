@@ -16,7 +16,7 @@ type State = 'Stopped' | 'Started' | 'StartedOvertime';
 export class AppComponent {
   reminderFrequencyInMinutes = 60;
   state$ = new BehaviorSubject<State>('Stopped');
-  startedCountdown$: Observable<number> = this.state$
+  startedCountdown$ = this.state$
     .pipe(
       filter(x => x === 'Started'),
       switchMap(() => timer(0, 1000).pipe(
@@ -25,6 +25,13 @@ export class AppComponent {
         takeUntil(this.state$.pipe(filter(x => x !== 'Started')))
       ))
     );
+
+  startedCountdownFormatted$ = this.startedCountdown$.pipe(map(x => {
+    const min = `${Math.floor(x / 60)}`.padStart(2, '0');
+    const sec = `${Math.floor(x % 60)}`.padStart(2, '0');
+    return `${min}:${sec}`;
+  }));
+
   overtimeCountdown$ = this.state$.pipe(
     filter(x => x === 'StartedOvertime'),
     switchMap(() => timer(0, 1000).pipe(
