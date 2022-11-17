@@ -1,6 +1,6 @@
 import { FormsModule } from '@angular/forms';
 import { Component } from '@angular/core';
-import { BehaviorSubject, filter, map, switchMap, takeUntil, takeWhile, timer } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, switchMap, takeUntil, takeWhile, timer } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
 type State = 'Stopped' | 'Started' | 'StartedOvertime';
@@ -19,33 +19,36 @@ interface History {
 export class AppComponent {
   reminderFrequencyInMinutes = 60;
   state$ = new BehaviorSubject<State>('Stopped');
-  startedCountdown$ = this.state$
-    .pipe(
-      filter(x => x === 'Started'),
-      switchMap(() => timer(0, 1000).pipe(
-        map(x => this.reminderFrequencyInMinutes * 60 - x),
-        takeWhile(x => x >= 0),
-        takeUntil(this.state$.pipe(filter(x => x !== 'Started'))),
-      )),
-    );
-
-  startedCountdownFormatted$ = this.startedCountdown$.pipe(map(x => {
-    const min = `${Math.floor(x / 60)}`.padStart(2, '0');
-    const sec = `${Math.floor(x % 60)}`.padStart(2, '0');
-    return `${min}:${sec}`;
-  }));
-
-  overtimeCountdown$ = this.state$.pipe(
-    filter(x => x === 'StartedOvertime'),
-    switchMap(() => timer(0, 1000).pipe(
-      map(x => 59 - (x % 60)),
-      takeUntil(this.state$.pipe(filter(x => x !== 'StartedOvertime'))),
-    )),
-  );
-
+  startedCountdown$: Observable<number>;
+  startedCountdownFormatted$: Observable<string>;
+  overtimeCountdown$: Observable<number>;
   histories: History[] = [];
 
   constructor() {
+    this.startedCountdown$ = this.state$
+      .pipe(
+        filter(x => x === 'Started'),
+        switchMap(() => timer(0, 1000).pipe(
+          map(x => this.reminderFrequencyInMinutes * 60 - x),
+          takeWhile(x => x >= 0),
+          takeUntil(this.state$.pipe(filter(x => x !== 'Started'))),
+        )),
+      );
+
+    this.startedCountdownFormatted$ = this.startedCountdown$.pipe(map(x => {
+      const min = `${Math.floor(x / 60)}`.padStart(2, '0');
+      const sec = `${Math.floor(x % 60)}`.padStart(2, '0');
+      return `${min}:${sec}`;
+    }));
+
+    this.overtimeCountdown$ = this.state$.pipe(
+      filter(x => x === 'StartedOvertime'),
+      switchMap(() => timer(0, 1000).pipe(
+        map(x => 59 - (x % 60)),
+        takeUntil(this.state$.pipe(filter(x => x !== 'StartedOvertime'))),
+      )),
+    );
+
     this.startedCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
       this.sendNotification('Time to drink some water');
       this.state$.next('StartedOvertime');
