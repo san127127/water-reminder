@@ -1,7 +1,8 @@
 import { FormsModule } from '@angular/forms';
 import { Component } from '@angular/core';
-import { BehaviorSubject, filter, map, Observable, switchMap, takeUntil, takeWhile, timer } from 'rxjs';
+import { BehaviorSubject, filter, map, Observable, switchMap, takeUntil, takeWhile } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { TimerService } from './timer.service';
 
 type State = 'Stopped' | 'Started' | 'StartedOvertime';
 interface History {
@@ -24,11 +25,11 @@ export class AppComponent {
   overtimeCountdown$: Observable<number>;
   histories: History[] = [];
 
-  constructor() {
+  constructor(timerService: TimerService) {
     this.startedCountdown$ = this.state$
       .pipe(
         filter(x => x === 'Started'),
-        switchMap(() => timer(0, 1000).pipe(
+        switchMap(() => timerService.timer().pipe(
           map(x => this.reminderFrequencyInMinutes * 60 - x),
           takeWhile(x => x >= 0),
           takeUntil(this.state$.pipe(filter(x => x !== 'Started'))),
@@ -43,7 +44,7 @@ export class AppComponent {
 
     this.overtimeCountdown$ = this.state$.pipe(
       filter(x => x === 'StartedOvertime'),
-      switchMap(() => timer(0, 1000).pipe(
+      switchMap(() => timerService.timer().pipe(
         map(x => 59 - (x % 60)),
         takeUntil(this.state$.pipe(filter(x => x !== 'StartedOvertime'))),
       )),
