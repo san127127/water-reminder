@@ -106,11 +106,23 @@
           "options": {
             "browserTarget": "water-reminder:build"
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
   },
   "cli": {
-    "analytics": "f95d9d7a-64da-4e2c-8e7f-7a80ecbbdb6d"
+    "analytics": "f95d9d7a-64da-4e2c-8e7f-7a80ecbbdb6d",
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   }
 }

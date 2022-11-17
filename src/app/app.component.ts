@@ -1,8 +1,7 @@
 import { FormsModule } from '@angular/forms';
-import { Component, Pipe, PipeTransform } from '@angular/core';
-import { BehaviorSubject, buffer, bufferCount, filter, interval, map, Observable, of, Subscription, switchMap, takeUntil, takeWhile, timeInterval, timer } from 'rxjs';
+import { Component } from '@angular/core';
+import { BehaviorSubject, filter, map, switchMap, takeUntil, takeWhile, timer } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { ThisReceiver } from '@angular/compiler';
 
 type State = 'Stopped' | 'Started' | 'StartedOvertime';
 interface History {
@@ -26,8 +25,8 @@ export class AppComponent {
       switchMap(() => timer(0, 1000).pipe(
         map(x => this.reminderFrequencyInMinutes * 60 - x),
         takeWhile(x => x >= 0),
-        takeUntil(this.state$.pipe(filter(x => x !== 'Started')))
-      ))
+        takeUntil(this.state$.pipe(filter(x => x !== 'Started'))),
+      )),
     );
 
   startedCountdownFormatted$ = this.startedCountdown$.pipe(map(x => {
@@ -40,17 +39,17 @@ export class AppComponent {
     filter(x => x === 'StartedOvertime'),
     switchMap(() => timer(0, 1000).pipe(
       map(x => 59 - (x % 60)),
-      takeUntil(this.state$.pipe(filter(x => x !== 'StartedOvertime')))
-    ))
-  )
+      takeUntil(this.state$.pipe(filter(x => x !== 'StartedOvertime'))),
+    )),
+  );
 
-  histories: History[] = []
+  histories: History[] = [];
 
   constructor() {
     this.startedCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
       this.sendNotification('Time to drink some water');
       this.state$.next('StartedOvertime');
-    })
+    });
 
     this.overtimeCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
       this.sendNotification('Time to drink some water');
@@ -94,8 +93,8 @@ export class AppComponent {
 
   async sendNotification(msg: string) {
     if(window.Notification.permission === 'granted') {
-      new Notification("Water reminder", {
-        body: msg
+      new Notification('Water reminder', {
+        body: msg,
       });
     }
   }

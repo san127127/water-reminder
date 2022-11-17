@@ -8,5 +8,5 @@ if (environment.production) {
 }
 
 bootstrapApplication(AppComponent)
-.then(() => console.log('bootstrapped'))
-.catch(err => console.error(err));
+  .then(() => console.log('bootstrapped'))
+  .catch(err => console.error(err));
