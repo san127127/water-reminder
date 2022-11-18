@@ -19,6 +19,7 @@ specifiers:
   '@angular/router': ^14.2.0
   '@typescript-eslint/eslint-plugin': 5.43.0
   '@typescript-eslint/parser': 5.43.0
+  date-fns: ^2.29.3
   eslint: ^8.27.0
   rxjs: ~7.5.0
   tslib: ^2.3.0
@@ -35,6 +36,7 @@ dependencies:
   '@angular/platform-browser': 14.2.10_2cx72nz3jmtgwwodpmk7x4j5na
   '@angular/platform-browser-dynamic': 14.2.10_6pwxszwfx7t6eu7geozn33s7pu
   '@angular/router': 14.2.10_ytyipurqyq25c66wnn5yzzxlwa
+  date-fns: 2.29.3
   rxjs: 7.5.7
   tslib: 2.4.1
   worker-timers: 7.0.58
@@ -3278,6 +3280,11 @@ packages:
     engines: {node: '>=4'}
     hasBin: true
     dev: true
+
+  /date-fns/2.29.3:
+    resolution: {integrity: sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==}
+    engines: {node: '>=0.11'}
+    dev: false
 
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}

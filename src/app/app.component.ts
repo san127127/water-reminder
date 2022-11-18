@@ -3,6 +3,7 @@ import { Component } from '@angular/core';
 import { BehaviorSubject, filter, map, Observable, switchMap, takeUntil, takeWhile } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { TimerService } from './timer.service';
+import { format } from 'date-fns';
 
 type State = 'Stopped' | 'Started' | 'StartedOvertime';
 interface History {
@@ -51,12 +52,12 @@ export class AppComponent {
     );
 
     this.startedCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
-      this.sendNotification('Time to drink some water');
+      this.sendNotification(`[${format(new Date(), 'HH:mm aa')}] Time to drink some water`);
       this.state$.next('StartedOvertime');
     });
 
     this.overtimeCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
-      this.sendNotification('Time to drink some water');
+      this.sendNotification(`[${format(new Date(), 'HH:mm aa')}] Time to drink some water`);
     });
   }
 
