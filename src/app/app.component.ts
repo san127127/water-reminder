@@ -25,6 +25,7 @@ export class AppComponent {
   startedCountdownFormatted$: Observable<string>;
   overtimeCountdown$: Observable<number>;
   histories: History[] = [];
+  currentNotification?: Notification;
 
   constructor(timerService: TimerService) {
     this.startedCountdown$ = this.state$
@@ -35,12 +36,12 @@ export class AppComponent {
           takeWhile(x => x >= 0),
           takeUntil(this.state$.pipe(filter(x => x !== 'Started'))),
         )),
-      );
+    );
 
     this.startedCountdownFormatted$ = this.startedCountdown$.pipe(map(x => {
-      const min = `${Math.floor(x / 60)}`.padStart(2, '0');
-      const sec = `${Math.floor(x % 60)}`.padStart(2, '0');
-      return `${min}:${sec}`;
+        const min = `${Math.floor(x / 60)}`.padStart(2, '0');
+        const sec = `${Math.floor(x % 60)}`.padStart(2, '0');
+        return `${min}:${sec}`;
     }));
 
     this.overtimeCountdown$ = this.state$.pipe(
@@ -91,14 +92,15 @@ export class AppComponent {
 
   async requestNotificationPermission() {
     const permission = await window.Notification.requestPermission();
-    if(permission === 'granted') {
+    if (permission === 'granted') {
       this.sendNotification('We are good to go~');
     }
   }
 
   async sendNotification(msg: string) {
-    if(window.Notification.permission === 'granted') {
-      new Notification('Water reminder', {
+    if (window.Notification.permission === 'granted') {
+      this.currentNotification?.close();
+      this.currentNotification = new Notification('Water reminder', {
         body: msg,
       });
     }
