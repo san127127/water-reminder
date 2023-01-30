@@ -36,12 +36,12 @@ export class AppComponent {
           takeWhile(x => x >= 0),
           takeUntil(this.state$.pipe(filter(x => x !== 'Started'))),
         )),
-    );
+      );
 
     this.startedCountdownFormatted$ = this.startedCountdown$.pipe(map(x => {
-        const min = `${Math.floor(x / 60)}`.padStart(2, '0');
-        const sec = `${Math.floor(x % 60)}`.padStart(2, '0');
-        return `${min}:${sec}`;
+      const min = `${Math.floor(x / 60)}`.padStart(2, '0');
+      const sec = `${Math.floor(x % 60)}`.padStart(2, '0');
+      return `${min}:${sec}`;
     }));
 
     this.overtimeCountdown$ = this.state$.pipe(
