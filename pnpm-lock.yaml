@@ -25,6 +25,7 @@ specifiers:
   tslib: ^2.3.0
   typescript: ~4.7.2
   worker-timers: ^7.0.58
+  xstate: ^4.35.3
   zone.js: ~0.11.4
 
 dependencies:
@@ -40,6 +41,7 @@ dependencies:
   rxjs: 7.5.7
   tslib: 2.4.1
   worker-timers: 7.0.58
+  xstate: 4.35.3
   zone.js: 0.11.8
 
 devDependencies:
@@ -7481,6 +7483,10 @@ packages:
       utf-8-validate:
         optional: true
     dev: true
+
+  /xstate/4.35.3:
+    resolution: {integrity: sha512-/vM8la6OPcmT2P4R8p37P/Pzo8fTeEjvg+lxCfQ7vTeJg6NmzPHDJ5RdlrGfojEIabMxKW22Tm2kz8oV390Awg==}
+    dev: false
 
   /y18n/5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}

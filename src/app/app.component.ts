@@ -1,11 +1,12 @@
 import { FormsModule } from '@angular/forms';
 import { Component } from '@angular/core';
-import { BehaviorSubject, filter, map, Observable, switchMap, takeUntil, takeWhile } from 'rxjs';
 import { CommonModule } from '@angular/common';
-import { TimerService } from './timer.service';
-import { format } from 'date-fns';
+import { NotificationService } from './notification.service';
+import { interpret } from 'xstate';
+import { EventType, reminderStateMachine } from './reminder-state-machine';
+import { setTimeout, clearTimeout } from 'worker-timers';
+import { timer, map } from 'rxjs';
 
-type State = 'Stopped' | 'Started' | 'StartedOvertime';
 interface History {
   event: 'Start' | 'Drink' | 'Stop';
   time: Date;
@@ -20,50 +21,29 @@ interface History {
 })
 export class AppComponent {
   reminderFrequencyInMinutes = 60;
-  state$ = new BehaviorSubject<State>('Stopped');
-  startedCountdown$: Observable<number>;
-  startedCountdownFormatted$: Observable<string>;
-  overtimeCountdown$: Observable<number>;
   histories: History[] = [];
-  currentNotification?: Notification;
+  machineService = interpret(reminderStateMachine(this.notificationService), {
+    clock: { setTimeout, clearTimeout },
+  }).start();
 
-  constructor(timerService: TimerService) {
-    this.startedCountdown$ = this.state$
-      .pipe(
-        filter(x => x === 'Started'),
-        switchMap(() => timerService.timer().pipe(
-          map(x => this.reminderFrequencyInMinutes * 60 - x),
-          takeWhile(x => x >= 0),
-          takeUntil(this.state$.pipe(filter(x => x !== 'Started'))),
-        )),
-      );
+  countdown$ = timer(0, 1000)
+    .pipe(map(() => countdownString(this.getCurrentState().context.nextReminderTime - Date.now())));
 
-    this.startedCountdownFormatted$ = this.startedCountdown$.pipe(map(x => {
-      const min = `${Math.floor(x / 60)}`.padStart(2, '0');
-      const sec = `${Math.floor(x % 60)}`.padStart(2, '0');
-      return `${min}:${sec}`;
-    }));
-
-    this.overtimeCountdown$ = this.state$.pipe(
-      filter(x => x === 'StartedOvertime'),
-      switchMap(() => timerService.timer().pipe(
-        map(x => 59 - (x % 60)),
-        takeUntil(this.state$.pipe(filter(x => x !== 'StartedOvertime'))),
-      )),
-    );
-
-    this.startedCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
-      this.sendNotification(`[${format(new Date(), 'HH:mm aa')}] Time to drink some water`);
-      this.state$.next('StartedOvertime');
-    });
-
-    this.overtimeCountdown$.pipe(filter(x => x === 0)).subscribe(() => {
-      this.sendNotification(`[${format(new Date(), 'HH:mm aa')}] Time to drink some water`);
-    });
+  constructor(
+    private notificationService: NotificationService,
+  ) {
   }
 
   hasNotificationPermission(): boolean {
-    return window.Notification.permission === 'granted';
+    return this.notificationService.currentPermission === 'granted';
+  }
+
+  async requestNotificationPermission() {
+    this.notificationService.requestNotificationPermission();
+  }
+
+  getCurrentState() {
+    return this.machineService.getSnapshot();
   }
 
   start() {
@@ -71,7 +51,10 @@ export class AppComponent {
       event: 'Start',
       time: new Date(),
     });
-    this.state$.next('Started');
+    this.machineService.send({
+      type: EventType.Start,
+      reminderFrequencyInMinutes: this.reminderFrequencyInMinutes,
+    });
   }
 
   stop() {
@@ -79,7 +62,7 @@ export class AppComponent {
       event: 'Stop',
       time: new Date(),
     });
-    this.state$.next('Stopped');
+    this.machineService.send({ type: EventType.Stop });
   }
 
   drink() {
@@ -87,22 +70,17 @@ export class AppComponent {
       event: 'Drink',
       time: new Date(),
     });
-    this.state$.next('Started');
+    this.machineService.send({ type: EventType.Drink });
+  }
+}
+
+function countdownString(remainingMillisecond: number): string {
+  if(remainingMillisecond < 0) {
+    return '00:00';
   }
 
-  async requestNotificationPermission() {
-    const permission = await window.Notification.requestPermission();
-    if (permission === 'granted') {
-      this.sendNotification('We are good to go~');
-    }
-  }
-
-  async sendNotification(msg: string) {
-    if (window.Notification.permission === 'granted') {
-      this.currentNotification?.close();
-      this.currentNotification = new Notification('Water reminder', {
-        body: msg,
-      });
-    }
-  }
+  const remainingSeconds = remainingMillisecond / 1000;
+  const min = `${Math.floor(remainingSeconds / 60)}`.padStart(2, '0');
+  const sec = `${Math.floor(remainingSeconds % 60)}`.padStart(2, '0');
+  return `${min}:${sec}`;
 }

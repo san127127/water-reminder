@@ -3,23 +3,23 @@
         <img class="raingdrop" src="assets/raindrop.png" />
     </div>
     <div *ngIf="hasNotificationPermission(); else elseBlock">
-        <div [ngSwitch]="state$ | async">
+        <div [ngSwitch]="getCurrentState().value">
             <div *ngSwitchCase="'Stopped'">
                 <p>
-                    Remind me to drink water every <input type="number" [(ngModel)]="reminderFrequencyInMinutes" /> minutes
+                    Remind me to drink water every <input type="number" min="1" [(ngModel)]="reminderFrequencyInMinutes" /> minutes
                 </p>
                 <button (click)="start()">Start</button>
             </div>
             <div *ngSwitchCase="'Started'">
                 <p>
-                    Next reminder after {{ startedCountdownFormatted$ | async }}
+                    Next reminder after {{ countdown$ | async }}
                 </p>
                 <button (click)="drink()">I just drunk some water</button>
                 <br>
                 <button (click)="stop()">Stop</button>
             </div>
             <div *ngSwitchCase="'StartedOvertime'">
-                <p>Overtime!! Next reminder after {{ overtimeCountdown$ | async }} seconds</p>
+                <p>Overtime!! Next reminder after {{ countdown$ | async }} seconds</p>
                 <button (click)="drink()">I just drunk some water</button>
                 <br>
                 <button (click)="stop()">Stop</button>
