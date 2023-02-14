@@ -6,6 +6,7 @@ import { interpret } from 'xstate';
 import { EventType, reminderStateMachine } from './reminder-state-machine';
 import { setTimeout, clearTimeout } from 'worker-timers';
 import { timer, map } from 'rxjs';
+import { CountdownPipe } from './countdown.pipe';
 
 interface History {
   event: 'Start' | 'Drink' | 'Stop';
@@ -16,7 +17,7 @@ interface History {
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CountdownPipe],
   standalone: true,
 })
 export class AppComponent {
@@ -27,7 +28,7 @@ export class AppComponent {
   }).start();
 
   countdown$ = timer(0, 1000)
-    .pipe(map(() => countdownString(this.getCurrentState().context.nextReminderTime - Date.now())));
+    .pipe(map(() => this.getCurrentState().context.nextReminderTime - Date.now()));
 
   constructor(
     private notificationService: NotificationService,
@@ -72,15 +73,4 @@ export class AppComponent {
     });
     this.machineService.send({ type: EventType.Drink });
   }
-}
-
-function countdownString(remainingMillisecond: number): string {
-  if(remainingMillisecond < 0) {
-    return '00:00';
-  }
-
-  const remainingSeconds = remainingMillisecond / 1000;
-  const min = `${Math.floor(remainingSeconds / 60)}`.padStart(2, '0');
-  const sec = `${Math.floor(remainingSeconds % 60)}`.padStart(2, '0');
-  return `${min}:${sec}`;
 }
