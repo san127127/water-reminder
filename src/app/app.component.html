@@ -3,14 +3,14 @@
         <img class="raingdrop" src="assets/raindrop.png" />
     </div>
     <div *ngIf="hasNotificationPermission(); else elseBlock">
-        <div [ngSwitch]="getCurrentState().value">
-            <div *ngSwitchCase="'Stopped'">
+        <ng-container *ngIf="(state$ | async) as state">
+            <div *ngIf="state.matches('Stopped')">
                 <p>
                     Remind me to drink water every <input type="number" min="1" [(ngModel)]="reminderFrequencyInMinutes" /> minutes
                 </p>
                 <button (click)="start()">Start</button>
             </div>
-            <div *ngSwitchCase="'Started'">
+            <div *ngIf="state.matches('Started.Normal')">
                 <p>
                     Next reminder after {{ countdown$ | async | countdown }}
                 </p>
@@ -18,13 +18,13 @@
                 <br>
                 <button (click)="stop()">Stop</button>
             </div>
-            <div *ngSwitchCase="'StartedOvertime'">
+            <div *ngIf="state.matches('Started.Overtime')">
                 <p>Overtime!! Next reminder after {{ countdown$ | async | countdown }} seconds</p>
                 <button (click)="drink()">I just drunk some water</button>
                 <br>
                 <button (click)="stop()">Stop</button>
             </div>
-        </div>
+        </ng-container>
         <div class="historiesContainer">
             <ul>
                 <li *ngFor="let h of histories;">

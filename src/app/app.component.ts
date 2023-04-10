@@ -5,7 +5,7 @@ import { NotificationService } from './notification.service';
 import { interpret } from 'xstate';
 import { EventType, reminderStateMachine } from './reminder-state-machine';
 import { setTimeout, clearTimeout } from 'worker-timers';
-import { timer, map } from 'rxjs';
+import { timer, map, from, switchMap } from 'rxjs';
 import { CountdownPipe } from './countdown.pipe';
 
 interface History {
@@ -26,9 +26,13 @@ export class AppComponent {
   machineService = interpret(reminderStateMachine(this.notificationService), {
     clock: { setTimeout, clearTimeout },
   }).start();
+  state$ = from(this.machineService);
 
   countdown$ = timer(0, 1000)
-    .pipe(map(() => this.getCurrentState().context.nextReminderTime - Date.now()));
+    .pipe(
+      switchMap(() => this.state$),
+      map((state) => state.context.nextReminderTime - Date.now()),
+    );
 
   constructor(
     private notificationService: NotificationService,
@@ -41,10 +45,6 @@ export class AppComponent {
 
   async requestNotificationPermission() {
     this.notificationService.requestNotificationPermission();
-  }
-
-  getCurrentState() {
-    return this.machineService.getSnapshot();
   }
 
   start() {

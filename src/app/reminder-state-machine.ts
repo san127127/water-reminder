@@ -18,16 +18,20 @@ export type Event =
   | { type: EventType.Start, reminderFrequencyInMinutes: number }
   | { type: EventType.Drink };
 
+
 export enum State {
   Stopped = 'Stopped',
   Started = 'Started',
-  StartedOvertime = 'StartedOvertime',
 }
 
+export enum StartedNestedState {
+  Normal = 'Normal',
+  Overtime = 'Overtime',
+}
 
 enum Delay {
   Normal = 'Normal',
-  Overtime = 'Overtime'
+  Overtime = 'Overtime',
 }
 
 enum Action {
@@ -53,29 +57,36 @@ export function reminderStateMachine(notification: NotificationService) {
           },
         },
       },
+
       [State.Started]: {
         on: {
-          [EventType.Drink]: State.Started,
           [EventType.Stop]: State.Stopped,
         },
-        entry: [Action.SetNextReminderTime],
-        after: {
-          [Delay.Normal]: {
-            actions: [Action.SendNotification],
-            target: State.StartedOvertime,
+        initial: StartedNestedState.Normal,
+        states: {
+          [StartedNestedState.Normal]: {
+            on: {
+              [EventType.Drink]: StartedNestedState.Normal,
+            },
+            entry: [Action.SetNextReminderTime],
+            after: {
+              [Delay.Normal]: {
+                actions: [Action.SendNotification],
+                target: StartedNestedState.Overtime,
+              },
+            },
           },
-        },
-      },
-      [State.StartedOvertime]: {
-        on: {
-          [EventType.Drink]: State.Started,
-          [EventType.Stop]: State.Stopped,
-        },
-        entry: [Action.SetNextReminderTimeOvertime],
-        after: {
-          [Delay.Overtime]: {
-            actions: [Action.SendNotification],
-            target: State.StartedOvertime,
+          [StartedNestedState.Overtime]: {
+            on: {
+              [EventType.Drink]: StartedNestedState.Normal,
+            },
+            entry: [Action.SetNextReminderTimeOvertime],
+            after: {
+              [Delay.Overtime]: {
+                actions: [Action.SendNotification],
+                target: StartedNestedState.Overtime,
+              },
+            },
           },
         },
       },
