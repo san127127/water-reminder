@@ -5,38 +5,29 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "lint": "ng lint"
+    "watch": "ng build --watch --configuration development"
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^14.2.0",
-    "@angular/common": "^14.2.0",
-    "@angular/compiler": "^14.2.0",
-    "@angular/core": "^14.2.0",
-    "@angular/forms": "^14.2.0",
-    "@angular/platform-browser": "^14.2.0",
-    "@angular/platform-browser-dynamic": "^14.2.0",
-    "@angular/router": "^14.2.0",
-    "date-fns": "^2.29.3",
-    "rxjs": "~7.5.0",
+    "@angular/animations": "^17.0.0",
+    "@angular/common": "^17.0.0",
+    "@angular/compiler": "^17.0.0",
+    "@angular/core": "^17.0.0",
+    "@angular/forms": "^17.0.0",
+    "@angular/platform-browser": "^17.0.0",
+    "@angular/platform-browser-dynamic": "^17.0.0",
+    "@angular/router": "^17.0.0",
+    "date-fns": "^2.30.0",
+    "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
-    "worker-timers": "^7.0.58",
-    "xstate": "^4.35.3",
-    "zone.js": "~0.11.4"
+    "worker-timers": "^7.0.77",
+    "xstate": "^4.38.3",
+    "zone.js": "~0.14.2"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^14.2.9",
-    "@angular-eslint/builder": "14.2.0",
-    "@angular-eslint/eslint-plugin": "14.2.0",
-    "@angular-eslint/eslint-plugin-template": "14.2.0",
-    "@angular-eslint/schematics": "14.2.0",
-    "@angular-eslint/template-parser": "14.2.0",
-    "@angular/cli": "~14.2.9",
-    "@angular/compiler-cli": "^14.2.0",
-    "@typescript-eslint/eslint-plugin": "5.43.0",
-    "@typescript-eslint/parser": "5.43.0",
-    "eslint": "^8.27.0",
-    "typescript": "~4.7.2"
+    "@angular-devkit/build-angular": "^17.0.0",
+    "@angular/cli": "^17.0.0",
+    "@angular/compiler-cli": "^17.0.0",
+    "typescript": "~5.2.2"
   }
 }

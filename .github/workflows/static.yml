@@ -43,8 +43,8 @@ jobs:
 
           # "sed -i" doesn't work exactly the same on linux and mac
           # Workaround by create a new file and overwrite the original index.html
-          indexPath="./dist/water-reminder/index.html"
-          tempPath="./dist/water-reminder/tmp-index.html"
+          indexPath="./dist/browser/index.html"
+          tempPath="./dist/browser/tmp-index.html"
           sed "s/%SHA%/"$GITHUB_SHA"/g" $indexPath > $tempPath
           mv -f $tempPath $indexPath
       - name: Setup Pages
@@ -52,7 +52,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: './dist/water-reminder'
+          path: "./dist/browser"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
