@@ -1,12 +1,13 @@
-import { FormsModule } from '@angular/forms';
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NotificationService } from './notification.service';
+import { Component } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
+import { from, map, timer } from 'rxjs';
+import { clearTimeout, setTimeout } from 'worker-timers';
 import { interpret } from 'xstate';
-import { EventType, reminderStateMachine } from './reminder-state-machine';
-import { setTimeout, clearTimeout } from 'worker-timers';
-import { timer, map, from, switchMap } from 'rxjs';
 import { CountdownPipe } from './countdown.pipe';
+import { NotificationService } from './notification.service';
+import { EventType, reminderStateMachine } from './reminder-state-machine';
 
 interface History {
   event: 'Start' | 'Drink' | 'Stop';
@@ -26,12 +27,11 @@ export class AppComponent {
   machineService = interpret(reminderStateMachine(this.notificationService), {
     clock: { setTimeout, clearTimeout },
   }).start();
-  state$ = from(this.machineService);
+  state = toSignal(from(this.machineService), { initialValue: this.machineService.initialState });
 
   countdown$ = timer(0, 1000)
     .pipe(
-      switchMap(() => this.state$),
-      map((state) => state.context.nextReminderTime - Date.now()),
+      map(() => this.state().context.nextReminderTime - Date.now()),
     );
 
   constructor(

@@ -2,43 +2,55 @@
     <div>
         <img class="raingdrop" src="assets/raindrop.png" />
     </div>
-    <div *ngIf="hasNotificationPermission(); else elseBlock">
-        <ng-container *ngIf="(state$ | async) as state">
-            <div *ngIf="state.matches('Stopped')">
-                <p>
-                    Remind me to drink water every <input type="number" min="1" [(ngModel)]="reminderFrequencyInMinutes" /> minutes
-                </p>
-                <button (click)="start()">Start</button>
-            </div>
-            <div *ngIf="state.matches('Started.Normal')">
-                <p>
-                    Next reminder after {{ countdown$ | async | countdown }}
-                </p>
-                <button (click)="drink()">I just drunk some water</button>
-                <br>
-                <button (click)="stop()">Stop</button>
-            </div>
-            <div *ngIf="state.matches('Started.Overtime')">
-                <p>Overtime!! Next reminder after {{ countdown$ | async | countdown }} seconds</p>
-                <button (click)="drink()">I just drunk some water</button>
-                <br>
-                <button (click)="stop()">Stop</button>
-            </div>
-        </ng-container>
+    @if(hasNotificationPermission()) {
+    <div>
+        <diV>
+            @if(state().matches('Stopped')) {
+            <p>
+                Remind me to drink water every <input type="number" min="1" [(ngModel)]="reminderFrequencyInMinutes" />
+                minutes
+            </p>
+            <button (click)="start()">Start</button>
+            }
+            @if(state().matches('Started.Normal')) {
+            <p>
+                Next reminder after {{ countdown$ | async | countdown }}
+            </p>
+            <button (click)="drink()">I just drunk some water</button>
+            <br>
+            <button (click)="stop()">Stop</button>
+            }
+            @if(state().matches('Started.Overtime')) {
+            <p>Overtime!! Next reminder after {{ countdown$ | async | countdown }} seconds</p>
+            <button (click)="drink()">I just drunk some water</button>
+            <br>
+            <button (click)="stop()">Stop</button>
+            }
+        </diV>
         <div class="historiesContainer">
             <ul>
-                <li *ngFor="let h of histories;">
+                @for(h of histories; track h.time) {
+                <li>
                     {{ h.time | date:'shortTime' }} -
-                    <ng-container [ngSwitch]="h.event">
-                        <span *ngSwitchCase="'Start'">Started</span>
-                        <span *ngSwitchCase="'Drink'">You drunk some water</span>
-                        <span *ngSwitchCase="'Stop'">Stopped</span>
-                    </ng-container >
+                    @switch (h.event) {
+                    @case('Start') {
+                    <span>Started</span>
+                    }
+                    @case('Stop') {
+                    <span>Stopped</span>
+                    }
+                    @case('Drink') {
+                    <span>You drunk some water</span>
+                    }
+                    }
                 </li>
+                }
             </ul>
         </div>
     </div>
-    <ng-template #elseBlock>
+    } @else {
+    <div>
         <button (click)="requestNotificationPermission()">Please grant notification permission</button>
-    </ng-template>
+    </div>
+    }
 </div>
