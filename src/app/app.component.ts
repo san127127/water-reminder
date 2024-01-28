@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { from, map, timer } from 'rxjs';
@@ -72,5 +72,15 @@ export class AppComponent {
       time: new Date(),
     });
     this.machineService.send({ type: EventType.Drink });
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent) {
+    if (this.state().matches('Started')) {
+      event.returnValue = '';
+      return false;
+    }
+
+    return true;
   }
 }
