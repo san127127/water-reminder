@@ -1,56 +1,57 @@
 <div class="root">
     <div>
-        <img class="raingdrop" src="assets/raindrop.png" />
+        <img class="raingdrop" src="assets/raindrop.png"/>
     </div>
-    @if(hasNotificationPermission()) {
-    <div>
-        <diV>
-            @if(state().matches('Stopped')) {
-            <p>
-                Remind me to drink water every <input type="number" min="1" [(ngModel)]="reminderFrequencyInMinutes" />
-                minutes
-            </p>
-            <button (click)="start()">Start</button>
-            }
-            @if(state().matches('Started.Normal')) {
-            <p>
-                Next reminder after {{ countdown$ | async | countdown }}
-            </p>
-            <button (click)="drink()">I just drunk some water</button>
-            <br>
-            <button (click)="stop()">Stop</button>
-            }
-            @if(state().matches('Started.Overtime')) {
-            <p>Overtime!! Next reminder after {{ countdown$ | async | countdown }} seconds</p>
-            <button (click)="drink()">I just drunk some water</button>
-            <br>
-            <button (click)="stop()">Stop</button>
-            }
-        </diV>
-        <div class="historiesContainer">
-            <ul>
-                @for(h of histories; track h.time) {
-                <li>
-                    {{ h.time | date:'shortTime' }} -
-                    @switch (h.event) {
-                    @case('Start') {
-                    <span>Started</span>
-                    }
-                    @case('Stop') {
-                    <span>Stopped</span>
-                    }
-                    @case('Drink') {
-                    <span>You drunk some water</span>
-                    }
-                    }
-                </li>
+    @if (hasNotificationPermission()) {
+        <div>
+            <diV>
+                @if (state().matches('Stopped')) {
+                    <p>
+                        <span>Remind me to drink water every</span>
+                        <input type="number" min="1" [(ngModel)]="reminderFrequencyInMinutes"/>
+                        <span>minutes</span>
+                    </p>
+                    <button (click)="start()">Start</button>
                 }
-            </ul>
+                @if (state().matches('Started.Normal')) {
+                    <p>
+                        Next reminder after {{ countdown$ | async | countdown }}
+                    </p>
+                    <button (click)="drink()">I just drunk some water</button>
+                    <br>
+                    <button (click)="stop()">Stop</button>
+                }
+                @if (state().matches('Started.Overtime')) {
+                    <p>Overtime!! Next reminder after {{ countdown$ | async | countdown }} seconds</p>
+                    <button (click)="drink()">I just drunk some water</button>
+                    <br>
+                    <button (click)="stop()">Stop</button>
+                }
+            </diV>
+            <div class="historiesContainer">
+                <ul>
+                    @for (h of histories(); track h.time) {
+                        <li>
+                            {{ h.time | date:'shortTime' }} -
+                            @switch (h.event) {
+                                @case ('Start') {
+                                    <span>Started</span>
+                                }
+                                @case ('Stop') {
+                                    <span>Stopped</span>
+                                }
+                                @case ('Drink') {
+                                    <span>You drunk some water</span>
+                                }
+                            }
+                        </li>
+                    }
+                </ul>
+            </div>
         </div>
-    </div>
     } @else {
-    <div>
-        <button (click)="requestNotificationPermission()">Please grant notification permission</button>
-    </div>
+        <div>
+            <button (click)="requestNotificationPermission()">Please grant notification permission</button>
+        </div>
     }
 </div>
